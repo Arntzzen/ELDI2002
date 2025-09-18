@@ -30,3 +30,6 @@ KI = 0.5;
 
 Kp_c = 500;
 KI_c = 200;
+
+dILdt = -R/L*IL - (1-u)/L*Vc + V0/L
+dVcdt = -G/C*Vc + (1-u)/C*IL - I0_nom/C
