@@ -57,7 +57,7 @@ Jac_A_sim = vpa(Jac_A, 4)
 % Evaluate the Jacobian matrix at the equilibrium point
 Jac_A_lin = double(subs(Jac_A, {vC, iL, u}, {Vc_nom, Ilbar, ubar}));
 
-Jac_A_lin_sim = vpa(Jac_A_eq, 4)
+Jac_A_lin_sim = vpa(Jac_A_lin, 4)
 
 
 % Jacobian for B-matrix
@@ -73,7 +73,7 @@ Jac_B_sim = vpa(Jac_B, 4)
 
 Jac_B_lin = double(subs(Jac_B, {vC, iL, u}, {Vc_nom, Ilbar, ubar}));
 
-Jac_B_lin_sim = vpa(Jac_B_eq, 4)
+Jac_B_lin_sim = vpa(Jac_B_lin, 4)
 
 E = [V0 -I0_nom] % Feil E-matrise, se "Block 2" på GoodNotes
 
