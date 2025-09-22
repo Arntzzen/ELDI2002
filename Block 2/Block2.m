@@ -1,6 +1,6 @@
 %Defining variables
 V0 = 12;                                 % input voltage
-Vc_nom = 16;                             % output voltage
+vC_nom = 16;                             % output voltage
 D = (Vc_nom-V0)/Vc_nom;                  % Nominal duty cycle
 P_nom = 100;                             % output power
 I0_nom = P_nom/Vc_nom;                   % Output current
@@ -12,15 +12,15 @@ C_min = (I0_nom*D)/(fs*Vc_max);          % Min capacitance
 L = 1.05 * L_min;                        % Chosen value for L
 C = 1.05 * C_min;                        % Chosen value for C
 n = 0.95;                                % Nominal efficiency
-Il_nom = P_nom/(n*V0);                   % nominal input current
+iL_nom = P_nom/(n*V0);                   % nominal input current
 P_loss = (1-n)*P_nom;                    % Power loss
-R = 3.75/Il_nom^2;                       % 0.75 * P_loss - Resistance
-G = 1.25/Vc_nom^2;                       % 25% * P_loss - Conductance
+R = 3.75/iL_nom^2;                       % 0.75 * P_loss - Resistance
+G = 1.25/vC_nom^2;                       % 25% * P_loss - Conductance
 
 
 %Equilibrium values
-Ilbar = (V0 - sqrt(V0^2 - 4*R*(G*Vc_nom^2 + I0_nom*Vc_nom))) / (2*R);
-ubar = 1 - (G*Vc_nom + I0_nom) / Ilbar;
+iL_bar = (V0 - sqrt(V0^2 - 4*R*(G*Vc_nom^2 + I0_nom*Vc_nom))) / (2*R);
+u_bar = 1 - (G*Vc_nom + I0_nom) / iL_bar;
 
 
 % Inner-loop PI-values
@@ -52,12 +52,12 @@ dF2dvC = diff(F2, vC);
 Jac_A = [dF1diL dF1dvC
          dF2diL dF2dvC];
 
-Jac_A_sim = vpa(Jac_A, 4)
+Jac_A_sim = vpa(Jac_A, 4);
 
 % Evaluate the Jacobian matrix at the equilibrium point
-Jac_A_lin = double(subs(Jac_A, {vC, iL, u}, {Vc_nom, Ilbar, ubar}));
+Jac_A_lin = double(subs(Jac_A, {vC, iL, u}, {Vc_nom, iL_bar, u_bar}));
 
-Jac_A_lin_sim = vpa(Jac_A_lin, 4)
+Jac_A_lin_sim = vpa(Jac_A_lin, 4);
 
 
 % Jacobian for B-matrix
@@ -69,13 +69,18 @@ dF2du = diff(F2, u);
 Jac_B = [dF1du
          dF2du];
 
-Jac_B_sim = vpa(Jac_B, 4)
+Jac_B_sim = vpa(Jac_B, 4);
 
-Jac_B_lin = double(subs(Jac_B, {vC, iL, u}, {Vc_nom, Ilbar, ubar}));
+Jac_B_lin = double(subs(Jac_B, {vC, iL, u}, {Vc_nom, iL_bar, u_bar}));
 
-Jac_B_lin_sim = vpa(Jac_B_lin, 4)
+Jac_B_lin_sim = vpa(Jac_B_lin, 4);
 
-E = [V0 -I0_nom] % Feil E-matrise, se "Block 2" på GoodNotes
 
-x = [vC, iL]
-xbar = [Vc_nom, I0_nom]
+% Calculations for x-matrix, x_bar-matrix and E-matrix
+x = [iL
+     vC];
+
+x_bar = [iL_bar
+         vC_nom];
+
+E = -Jac_A_lin * x_bar - Jac_B_lin * u_bar
