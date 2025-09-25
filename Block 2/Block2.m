@@ -54,8 +54,7 @@ Jac_A = [dF1diL dF1dvC
 % Evaluate the Jacobian matrix at the equilibrium point
 Jac_A_lin = double(subs(Jac_A, {vC, iL, u}, {vC_nom, iL_bar, u_bar}));
 
-Jac_A_lin_sim = vpa(Jac_A_lin, 4);
-A = Jac_A_lin_sim;
+A = Jac_A_lin;
 
 
 % Jacobian for B-matrix
@@ -69,7 +68,6 @@ Jac_B = [dF1du
 
 Jac_B_lin = double(subs(Jac_B, {vC, iL, u}, {vC_nom, iL_bar, u_bar}));
 
-Jac_B_lin_sim = vpa(Jac_B_lin, 4);
 B = Jac_B_lin_sim;
 
 
@@ -80,21 +78,21 @@ x = [iL
 x_ref = [iL_bar
          vC_nom];
 
-E1 = -A * x_ref - B * u_bar
-E = double(E1)
+E1 = -A * x_ref - B * u_bar;
+E = double(E1);
 
 
 
-% PI - Inner Loop Matrix Expansion
-syms x_c Kpp Kii;
+% PI - Inner Loop
+syms x_c KpIL KiIL;
 e = [1; 0];
 e_t = transpose(e);
 
 x_3 = [x; x_c];
-A_3 = [A-B*Kpp*e_t   B*Kii
-        -e_t         0 ];
+A_3 = [A-B*KpIL*e_t   B*KiIL
+        -e_t         0 ]
 
-B_3 = [B*Kpp
+B_3 = [B*KpIL
         1  ];
 
 E_3 = [E
@@ -102,7 +100,53 @@ E_3 = [E
 
 dx_3dt = A_3 * x_3 + B_3 * e_t*x_ref + E_3;
 
-Kp_p = 2;
-Ki_i = 5;
 
-% Define the state-space representation matrices
+
+% PI - Outer Loop
+syms x_c2 KpOL KiOL;
+e2 = [0;1;0];
+e2_t = transpose(e2);
+x_refIL = e_t * x_ref;
+
+x_4 = [x_3; x_c2];
+A_4 = [A_3-B_3*KpOL*e2_t, B_3*KiOL; -e2_t, 0];
+
+B_4 = [B_3*KpOL; 1];
+
+E_4 = [E_3; 0];
+
+dx_4dt = A_4 * x_4 + B_4 * e2_t*x_refIL + E_4
+
+
+
+KiIL = 0.5
+
+
+
+% Define the range of Kp -- > parameter to be swept
+Kp_values = linspace(1, 5, 100); % for example, 10 steps from 1 to 10
+% Prepare figure
+figure;
+hold on;
+colormap(jet); % Color map for Kp
+cmap = colormap;
+nColors = size(cmap, 1);
+% Loop over Kp values
+for i = 1:length(Kp_values)
+           KpIL = Kp_values(i);
+          A_for = [A-B*KpIL*e_t   B*KiIL
+        -e_t         0 ] % Example matrix, You put your own A matrix.
+          % Compute eigenvalues
+          eigvals = eig(A_for);
+          % Choose color based on Kp
+          colorIdx = round((i-1)/(length(Kp_values)-1)*(nColors-1)) + 1;
+          plot(real(eigvals), imag(eigvals), 'x', 'Color', cmap(colorIdx,:), 'LineWidth', 1.5);
+end
+% Plot formatting
+xlabel('Real Axis [s^{-1}]');
+ylabel('Imaginary Axis [s^{-1}]');
+title('Eigenvalue Sweep over Kp');
+colorbar('Ticks', linspace(0, 1, 5), 'TickLabels', round(linspace(1, 5, 5), 1));
+grid on;
+axis equal;
+%}
