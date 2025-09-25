@@ -37,8 +37,6 @@ KI_c = 200;
 % dILdt = -R/L*IL - (1-u)/L*Vc + V0/L           %IL is non-defined variable and therefore commented out
 % dVcdt = -G/C*Vc + (1-u)/C*IL - I0_nom/C       %Vc is non-defined variable and therefore commented out
 
-e = [1 0]
-
 % Jacobian for A-matrix
 syms vC iL u;
 
@@ -57,6 +55,7 @@ Jac_A = [dF1diL dF1dvC
 Jac_A_lin = double(subs(Jac_A, {vC, iL, u}, {vC_nom, iL_bar, u_bar}));
 
 Jac_A_lin_sim = vpa(Jac_A_lin, 4);
+A = Jac_A_lin_sim;
 
 
 % Jacobian for B-matrix
@@ -71,17 +70,33 @@ Jac_B = [dF1du
 Jac_B_lin = double(subs(Jac_B, {vC, iL, u}, {vC_nom, iL_bar, u_bar}));
 
 Jac_B_lin_sim = vpa(Jac_B_lin, 4);
+B = Jac_B_lin_sim;
 
 
 % Calculations for x-matrix, x_bar-matrix and E-matrix
 x = [iL
      vC];
 
-x_bar = [iL_bar
+x_ref = [iL_bar
          vC_nom];
 
-E = -Jac_A_lin * x_bar - Jac_B_lin * u_bar
+E = -A * x_ref - B * u_bar;
 
 
-% Eigenvalues for A-matrix
-eigenvalues_A = eig(Jac_A_lin)
+
+% PI - Inner Loop Matrix Expansion
+syms x_c Kp Ki;
+e = [1; 0];
+e_t = transpose(e);
+
+x_3 = [x; x_c];
+A_3 = [A-B*Kp*e_t   B*Ki
+        -e_t         0 ];
+
+B_3 = [B*Kp*e_t
+          e_t  ];
+
+E_3 = [E
+       0];
+
+dx_3dt = A_3 * x_3 + B_3 * x_ref + E_3;
