@@ -68,7 +68,7 @@ Jac_B = [dF1du
 
 Jac_B_lin = double(subs(Jac_B, {vC, iL, u}, {vC_nom, iL_bar, u_bar}));
 
-B = Jac_B_lin_sim;
+B = Jac_B_lin;
 
 
 % Calculations for x-matrix, x_bar-matrix and E-matrix
@@ -149,4 +149,3 @@ title('Eigenvalue Sweep over Kp');
 colorbar('Ticks', linspace(0, 1, 5), 'TickLabels', round(linspace(1, 5, 5), 1));
 grid on;
 axis equal;
-%}
