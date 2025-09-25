@@ -80,23 +80,29 @@ x = [iL
 x_ref = [iL_bar
          vC_nom];
 
-E = -A * x_ref - B * u_bar;
+E1 = -A * x_ref - B * u_bar
+E = double(E1)
 
 
 
 % PI - Inner Loop Matrix Expansion
-syms x_c Kp Ki;
+syms x_c Kpp Kii;
 e = [1; 0];
 e_t = transpose(e);
 
 x_3 = [x; x_c];
-A_3 = [A-B*Kp*e_t   B*Ki
+A_3 = [A-B*Kpp*e_t   B*Kii
         -e_t         0 ];
 
-B_3 = [B*Kp*e_t
-          e_t  ];
+B_3 = [B*Kpp
+        1  ];
 
 E_3 = [E
        0];
 
-dx_3dt = A_3 * x_3 + B_3 * x_ref + E_3;
+dx_3dt = A_3 * x_3 + B_3 * e_t*x_ref + E_3;
+
+Kp_p = 2;
+Ki_i = 5;
+
+% Define the state-space representation matrices
