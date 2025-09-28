@@ -24,13 +24,13 @@ u_bar = 1 - (G*vC_nom + I0_nom) / iL_bar;
 
 
 % Inner-loop PI-values
-Kp = 0.5;
-KI = 0.5;
+Kp = 0.1;
+Ki = 10;
 
 
 % Outer-loop PI-values
 Kp_c = 500;
-KI_c = 200;
+Ki_c = 200;
 
 
 % Differential equations of our system
@@ -118,18 +118,21 @@ E_4 = [E_3; 0];
 
 dx_4dt = A_4 * x_4 + B_4 * e2_t*x_refIL + E_4;
 
-KpILsub = 0.5;
-KiILsub = 0.5;
-A_3sub = subs(A_3, {KpIL, KiIL},{KpILsub, KiILsub})
-B_3sub = subs(B_3, KpIL, KpILsub)
-A_4sub = [A_3sub-B_3*KpOL*e2_t, B_3*KiOL; -e2_t, 0]
+KpILsub = 0.1;
+KiILsub = 10;
+A_3sub = subs(A_3, {KpIL, KiIL},{KpILsub, KiILsub});
+B_3sub = subs(B_3, KpIL, KpILsub);
+A_4sub = [A_3sub-B_3*KpOL*e2_t, B_3*KiOL; -e2_t, 0];
 
-KiOL = 0.1;
+KiOL = 1;
+KiIL = 10;
+
+eig_a_3 = vpa(double(eig(A_3sub)), 6)
 
 
-
+%{
 % Define the range of Kp -- > parameter to be swept
-Kp_values = linspace(0.1, 1, 100); % for example, 10 steps from 1 to 10
+Kp_values = linspace(0.1, 10, 100); % for example, 10 steps from 1 to 10
 % Prepare figure
 figure;
 hold on;
@@ -138,18 +141,19 @@ cmap = colormap;
 nColors = size(cmap, 1);
 % Loop over Kp values
 for i = 1:length(Kp_values)
-           KpOL = Kp_values(i);
-          A_for = [A_3sub-B_3sub*KpOL*e2_t, B_3sub*KiOL; -e2_t, 0];
+           KpIL = Kp_values(i);
+          A_for = [A-B*KpIL*e_t, B*KiIL; -e_t, 0];
           % Compute eigenvalues
-          eigvals = eig(A_for);
+          eigvals = eig(A_for)
           % Choose color based on Kp
           colorIdx = round((i-1)/(length(Kp_values)-1)*(nColors-1)) + 1;
-          plot(real(eigvals(3)), imag(eigvals), 'x', 'Color', cmap(colorIdx,:), 'LineWidth', 1.5);
+          plot(real(eigvals), imag(eigvals), 'x', 'Color', cmap(colorIdx,:), 'LineWidth', 1.5);
 end
 % Plot formatting
 xlabel('Real Axis [s^{-1}]');
 ylabel('Imaginary Axis [s^{-1}]');
 title('Eigenvalue Sweep over KpOL');
-colorbar('Ticks', linspace(0, 1, 5), 'TickLabels', round(linspace(0.1, 1, 5), 1));
+colorbar('Ticks', linspace(0, 1, 5), 'TickLabels', round(linspace(0.1, 10, 5), 1));
 grid on;
 axis equal;
+%}
