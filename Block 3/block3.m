@@ -29,6 +29,8 @@ riseTime = stepinfo(G).RiseTime;
 
 
 
+
+
 % Warm up task 2:
 
 PO = 5;                                                    % Percent overshoot
@@ -42,10 +44,10 @@ gam = 5000;
 a = 5000;
 
 s = tf('s');
-G = ((gam/a)*(wn^2)) / ((s^2 + 2*z*wn*s + wn^2)*(s+gam));   % Transfer function from warm up task 1
+G = ((gam/a)*(s+a)*(wn^2)) / ((s^2 + 2*z*wn*s + wn^2)*(s+gam));   % Transfer function from warm up task 1
 
-t = 0:0.000001:0.005;                                       % Time vector
-%y = step(G, t);                                             % Function generating step response for the transfer function "G" and time interval "t"
+t = 0:0.000001:0.01;                                       % Time vector
+y = step(G, t);                                             % Function generating step response for the transfer function "G" and time interval "t"
 
 
 % Plot the step response
