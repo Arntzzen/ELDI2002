@@ -54,7 +54,7 @@ Jac_A = [dF1diL dF1dvC
 % Evaluate the Jacobian matrix at the equilibrium point
 Jac_A_lin = double(subs(Jac_A, {vC, iL, u}, {vC_nom, iL_bar, u_bar}));
 
-A = Jac_A_lin;
+A = Jac_A_lin
 eig_A = eig(A);
 
 
@@ -69,7 +69,7 @@ Jac_B = [dF1du
 
 Jac_B_lin = double(subs(Jac_B, {vC, iL, u}, {vC_nom, iL_bar, u_bar}));
 
-B = Jac_B_lin;
+B = Jac_B_lin
 
 
 % Calculations for x-matrix, x_bar-matrix and E-matrix
@@ -80,7 +80,7 @@ x_ref = [iL_bar
          vC_nom];
 
 E1 = -A * x_ref - B * u_bar;
-E = double(E1);
+E = double(E1)
 
 
 

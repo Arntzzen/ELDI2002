@@ -40,28 +40,29 @@ z = (-log(PO/100)) / (sqrt(pi^2 + (log(PO/100))^2));         % Calculated formul
 wn = pi / (Tp*sqrt(1-z^2));                                      % Calculated formula for wn
 balance = 10*z*wn
 
-gam = 5000;
+gam = 500;
 %a1 = 5000;
 
 %s = tf('s');
 %G1 = ((gam1/a1)*(s+a1)*(wn^2)) / ((s^2 + 2*z*wn*s + wn^2)*(s+gam1));   % Transfer function from warm up task 1
 
-t = 0:0.000001:0.01;                                             % Time vector
+t = 0:0.000001:0.005;                                             % Time vector
 %y = step(G, t);                                                 % Function generating step response for the transfer function "G" and time interval "t"
 
-    a_val = [5000, 1000, 500];
-
+a_val = [6500, 1000, 500];
+gam_val = [8000, 1000, 500];
 
 
 % Plot of the step response
 figure;
 hold on;
-for i = 1:length(a_val)
-    a = a_val(i);
+for i = 1:length(gam_val)
+    %a = a_val(i);
+    gam = gam_val(i);
     s = tf('s');
     G = ((gam/a)*(s+a)*(wn^2)) / ((s^2 + 2*z*wn*s + wn^2)*(s+gam));
     [y, ~] = step(G, t);
-    plot(t, y, 'DisplayName', ['a = ' num2str(a)]);
+    plot(t, y, 'DisplayName', ['gamma = ' num2str(gam)]);
 end
 
 hold off;
