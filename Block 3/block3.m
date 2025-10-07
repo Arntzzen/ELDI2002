@@ -1,3 +1,5 @@
+%{
+
 % Warm up task 1:
 
 PO = 10;                                                % Percent overshoot
@@ -77,3 +79,62 @@ format long
 settlingTime = stepinfo(G).SettlingTime
 riseTime = stepinfo(G).RiseTime
 settlingValue = y(end)
+
+%}
+
+
+syms vC iL u R L C V0 G I0_nom a11 a12 a21 a22 b1 b2;
+
+F1 = -R/L*iL - (1-u)/L*vC + V0/L;
+F2 = -G/C*vC + (1-u)/C*iL - I0_nom/C;
+
+dF1diL = diff(F1, iL);
+dF1dvC = diff(F1, vC);
+dF2diL = diff(F2, iL);
+dF2dvC = diff(F2, vC);
+
+Jac_A = [dF1diL dF1dvC
+         dF2diL dF2dvC];
+
+Jac_AS =[a11 a12
+         a21 a22]
+
+
+
+dF1du = diff(F1, u);
+dF2du = diff(F2, u);
+
+Jac_B = [dF1du
+         dF2du];
+Jac_BS = [b1
+          b2]
+
+
+
+% Transfer function of our system
+syms IL VC U s;
+X = [IL; VC]
+
+%s = tf('s');
+%eq = s*X == A*X + B*U
+eq2 = s*X == Jac_AS*X + Jac_BS*U
+
+%sol = solve(eq, [IL, VC])
+sol2 = solve(eq2, [IL VC])
+
+IL_expr = sol2.IL
+
+disp('Y(s):');
+pretty(IL_expr);
+
+IL_col = collect(IL_expr, U);
+disp('Transfer function:')
+pretty(IL_col)
+
+latex(sol2.IL);
+
+
+%sim = vpa(simplify(sol.IL), 2)
+%pretty(sim)
+
+%pretty(sol2.IL)
