@@ -91,7 +91,7 @@ e_t = transpose(e);
 
 x_3 = [x; x_c];
 A_3 = [A-B*KpIL*e_t   B*KiIL
-        -e_t         0 ];
+        -e_t         0 ]
 
 B_3 = [B*KpIL
         1  ];
