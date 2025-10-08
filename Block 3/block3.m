@@ -138,3 +138,28 @@ latex(sol2.IL);
 %pretty(sim)
 
 %pretty(sol2.IL)
+
+
+eq_val = s*X == A*X + B*U;
+sol_eq_val = solve(eq_val, [IL, VC])
+
+s = tf('s')
+G = sol_eq_val.IL / U
+
+C_m = [1, 0];
+D_m = 0;
+
+%sys_ss = ss(A, B, C_m, D_m);
+sys_tf = tf(sys_ss)
+
+%step(sys_tf);
+
+p = pole(sys_tf)
+z = zero(sys_tf)
+
+K = evalfr(sys_tf, 0);
+a = 1e+02 * -3.012648809523808;
+
+first_order = K * (1 / (s + a))
+
+step(first_order)

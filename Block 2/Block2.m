@@ -49,12 +49,12 @@ dF2diL = diff(F2, iL);
 dF2dvC = diff(F2, vC);
 
 Jac_A = [dF1diL dF1dvC
-         dF2diL dF2dvC]
+         dF2diL dF2dvC];
 
 % Evaluate the Jacobian matrix at the equilibrium point
-%Jac_A_lin = double(subs(Jac_A, {vC, iL, u}, {vC_nom, iL_bar, u_bar}));
+Jac_A_lin = double(subs(Jac_A, {vC, iL, u}, {vC_nom, iL_bar, u_bar}));
 
-A = Jac_A_lin
+A = Jac_A_lin;
 eig_A = eig(A);
 
 
