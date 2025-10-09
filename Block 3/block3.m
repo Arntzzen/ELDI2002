@@ -1,4 +1,3 @@
-%{
 
 % Warm up task 1:
 
@@ -31,8 +30,7 @@ riseTime = stepinfo(G).RiseTime;
 
 
 
-
-
+%{
 % Warm up task 2:
 
 PO = 5;                                                      % Percent overshoot
@@ -53,6 +51,8 @@ t = 0:0.000001:0.005;                                             % Time vector
 
 a_val = [6500, 1000, 500];
 gam_val = [8000, 1000, 500];
+
+
 
 
 % Plot of the step response
@@ -76,9 +76,9 @@ grid on;
 
 % Calculate the settling time and rise time
 format long
-settlingTime = stepinfo(G).SettlingTime
-riseTime = stepinfo(G).RiseTime
-settlingValue = y(end)
+settlingTime = stepinfo(G).SettlingTime;
+riseTime = stepinfo(G).RiseTime;
+settlingValue = y(end);
 
 %}
 
@@ -120,24 +120,26 @@ sol_eq_val = solve(eq_val, [IL, VC]);
 %}
 
 
+
+
 % State-space system with transfer function
 s = tf('s');
 
 C_m = [1, 0];
 D_m = 0;
 
-sys_ss = ss(A, B, C_m, D_m);;
+sys_ss = ss(A, B, C_m, D_m);
 sys_tf = tf(sys_ss);
 
 %step(sys_tf);
 
-p = pole(sys_tf);
-z = zero(sys_tf);
+pol = pole(sys_tf);
+zer = zero(sys_tf);
 
 K = evalfr(sys_tf, 0);
-a = real(p(1));
+alpha = real(pol(1))
 
-first_order = K * (1 / (s + abs(a)));
+%first_order = K * (1 / (s + abs(a)))
 
 %step(first_order);
 
@@ -145,12 +147,47 @@ first_order = K * (1 / (s + abs(a)));
 
 
 % Closed-Loop
-Kp = 10;
-Ki = 20;
+%Kp = 10;
+%Ki = 20;
 
-Gc = Kp*((s+Ki/Kp)/s)
+syms Kp Ki K a s wn_cl zeta_cl
+G_hat = K * (1 / (s + a));
+Gc = Kp*((s+Ki/Kp)/s);
 
 % Define the closed-loop transfer function
-tauc = Ki / Kp
-Gcl = feedback(Gc*first_order, 1)
-step(Gcl);
+tauc = Ki / Kp;
+Gcl = Gc*G_hat;
+Gcl = collect(Gcl, K);
+pretty(Gcl);
+
+PI_cl = (G_hat * Gc) / (1 + G_hat * Gc);
+PI_closed_loop = collect(PI_cl, s);
+
+
+disp('PI Closed Loop:')
+pretty(PI_closed_loop)
+
+K = 12.24;
+a = 301.3;
+
+Ki_cl = wn_cl^2 / K
+Kp_cl = (2 * z * wn_cl - a) / K
+s = -Ki_cl/Kp_cl
+
+sol = solve(abs((-Ki_cl / Kp_cl)) >= 10*z*wn_cl, wn_cl, 'ReturnConditions', true)
+
+vpa(sol.conditions(1,1))
+vpa(sol.conditions(2,1))
+
+clear wn_cl
+clear sys_pu
+wn_cl = 235;
+%alpha = -301
+%sys2 = tf([K*-Kp_cl, Ki_cl*K,],[1, (alpha+K*Kp_cl), K*Ki_cl])
+%sys_pii = ((wn_cll^2/a)*(s+a)*(wn_cll^2)) / ((s^2 + 2*z*wn_cll*s + wn_cll^2))
+%sys_pu = ((wn_cl^2/a)*(s+a)*(wn_cl^2)) / ((s^2 + 2*z*wn_cl*s + wn_cl^2))
+%step(sys_pu);
+
+
+%Gcl = feedback(Gc*first_order, 1);
+%step(Gcl);
