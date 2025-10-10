@@ -139,26 +139,23 @@ zer = zero(sys_tf);
 K = evalfr(sys_tf, 0);
 alpha = real(pol(1))
 
-%first_order = K * (1 / (s + abs(a)))
+first_order = K * (1 / (s + abs(alpha)))
 
-%step(first_order);
-
-
+step(first_order);
 
 
+
+%{
 % Closed-Loop
-%Kp = 10;
-%Ki = 20;
-
-syms Kp Ki K a s wn_cl zeta_cl
-G_hat = K * (1 / (s + a));
+syms Kp Ki K aa s Wn_cl zeta_cl
+G_hat = K * (1 / (s + aa));
 Gc = Kp*((s+Ki/Kp)/s);
 
 % Define the closed-loop transfer function
-tauc = Ki / Kp;
-Gcl = Gc*G_hat;
-Gcl = collect(Gcl, K);
-pretty(Gcl);
+%tauc = Ki / Kp;
+%Gcl = Gc*G_hat;
+%Gcl = collect(Gcl, K);
+%pretty(Gcl);
 
 PI_cl = (G_hat * Gc) / (1 + G_hat * Gc);
 PI_closed_loop = collect(PI_cl, s);
@@ -168,26 +165,29 @@ disp('PI Closed Loop:')
 pretty(PI_closed_loop)
 
 K = 12.24;
-a = 301.3;
+aa = 301.3;
 
-Ki_cl = wn_cl^2 / K
-Kp_cl = (2 * z * wn_cl - a) / K
-s = -Ki_cl/Kp_cl
+Ki_cl_sym = Wn_cl^2 / K
+Kp_cl_sym = (2 * z * Wn_cl - aa) / K
+s = -Ki_cl_sym / Kp_cl_sym;
 
-sol = solve(abs((-Ki_cl / Kp_cl)) >= 10*z*wn_cl, wn_cl, 'ReturnConditions', true)
+sol = solve(abs((-Ki_cl_sym / Kp_cl_sym)) >= 10*z*Wn_cl, Wn_cl, 'ReturnConditions', true)
 
 vpa(sol.conditions(1,1))
 vpa(sol.conditions(2,1))
-
-clear wn_cl
-clear sys_pu
-wn_cl = 235;
-%alpha = -301
-%sys2 = tf([K*-Kp_cl, Ki_cl*K,],[1, (alpha+K*Kp_cl), K*Ki_cl])
-%sys_pii = ((wn_cll^2/a)*(s+a)*(wn_cll^2)) / ((s^2 + 2*z*wn_cll*s + wn_cll^2))
-%sys_pu = ((wn_cl^2/a)*(s+a)*(wn_cl^2)) / ((s^2 + 2*z*wn_cl*s + wn_cl^2))
-%step(sys_pu);
+vpa(sol.conditions(3,1))
 
 
-%Gcl = feedback(Gc*first_order, 1);
-%step(Gcl);
+% Transfer function of the PI-controller
+%alpha = 301.3;
+wn_cl = 290;
+
+Ki_cl = wn_cl^2 / K
+Kp_cl = (2 * z * wn_cl - aa) / K
+S = Ki_cl/Kp_cl;
+
+sys_PI = tf([K*Kp_cl, Ki_cl*K],[1, (aa+K*Kp_cl), K*Ki_cl])
+disp('sys_PI:')
+stepinfo(sys_PI)
+step(sys_PI)
+%}
