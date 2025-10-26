@@ -1,9 +1,9 @@
 % Phase lead-compensator:
-clc; clear; close all;
+%clc; clear; close all;
 
 % ---- plant + controller base values ----
 K = 12.24;          % given plant gain
-KI = 20000;         % integral gain used to set steady-state error (user value)
+KI = 1230;         % integral gain used to set steady-state error (user value)
 a = 301.3;          % plant pole location
 % Target phase margin you want after compensation:
 PM_target = 60;     % degrees
@@ -16,6 +16,7 @@ L = (K*KI) / ( s*(s + a) );
 
 % Plot uncompensated bode
 figure; bode(L); grid on; title('Uncompensated loop L(j\omega)');
+
 
 %% 1) find uncompensated gain crossover w_g (rad/s)
 % Solve |L(jw)| = 1
@@ -76,9 +77,9 @@ fprintf('Chosen w_m = %.4f rad/s\n', w_m);
 %% 6) compute T and uncompensated lead network
 T = 1 / ( w_m * sqrt(alpha) );
 % build uncompensated form of lead (note: include 1/alpha normalization)
-Gc_base = (1 + alpha*T*s) / ( alpha * (1 + T*s) );   % no extra scalar Kc yet
+Gc_base = (1 + alpha*T*s) / ( alpha * (1 + T*s) )   % no extra scalar Kc yet
 figure; bode(Gc_base); grid on; title('Nominal lead G_c (before K-adjust)');
-
+%{
 %% 7) adjust compensator scalar so |Gc * L| = 1 at w_m
 Ltemp = Gc_base * L;
 mag_Ltemp_at_wm = abs(evalfr(Ltemp, 1i*w_m));
@@ -86,7 +87,7 @@ Kc = 1 / mag_Ltemp_at_wm;    % multiply Gc_base by this to make unity gain at w_
 Gc = Kc * Gc_base;
 fprintf('Compensator scalar Kc = %.4f\n', Kc);
 
-%% 😎 final compensated loop and margins
+%% final compensated loop and margins
 L_comp = Gc * L;
 
 figure;
@@ -108,7 +109,7 @@ Gc
 Tcl = feedback(L_comp, 1);
 figure; step(Tcl); grid on; title('Closed-loop step response with lead compensator');
 
-
+stepinfo(Tcl)
 
 
 
@@ -116,7 +117,7 @@ figure; step(Tcl); grid on; title('Closed-loop step response with lead compensat
 
 
 % Phase lag-compensator:
-clc; clear; close all;
+%clc; clear; close all;
 
 K = 12.24;
 KI = 1230.8
@@ -128,10 +129,10 @@ boost_dB = 10;
 s = tf('s');
 L = (K*KI) / ( s*(s + a) )
 
-% --- 1) Plot uncompensated loop ---
+%% --- 1) Plot uncompensated loop ---
 figure; bode(L); grid on; title('Uncompensated L(j\omega)');
 
-% --- 2) Gain crossover frequency (|L(jw)| = 1) ---
+%% --- 2) Gain crossover frequency (|L(jw)| = 1) ---
 syms w
 eq = (K*KI)/(w*sqrt(w^2+a^2)) == 1;
 w_g = double(solve(eq,w));
@@ -139,25 +140,25 @@ w_g = w_g(w_g>0);
 fprintf('Uncompensated gain crossover w_g = %.4f rad/s\n', w_g)
 
 
-% --- 3) Compute uncompensated phase margin ---
+%% --- 3) Compute uncompensated phase margin ---
 phase_uncomp = angle(evalfr(L, 1i*w_g)) * (180/pi)
 PM_uncomp = 180 + phase_uncomp
 fprintf('Uncompensated phase = %.3f deg, PM = %.3f deg\n', phase_uncomp, PM_uncomp)
 
-% --- 4) Choose alpha (low-frequency boost) ---
+%% --- 4) Choose alpha (low-frequency boost) ---
 alpha = 10^(boost_dB/20)   % convert from dB to linear
 fprintf('Chosen boost = %.2f dB  -->  alpha = %.4f\n', boost_dB, alpha)
 
-% --- 5) Choose lag pole/zero placement ---
+%% --- 5) Choose lag pole/zero placement ---
 % Place zero roughly one decade below crossover
 w_z = w_g / 10         % zero frequency
 T = 1 / w_z            % zero at 1/T
 Gc = alpha * (1 + T*s) / (1 + alpha*T*s) %lag comp
 
-% --- 6) Form compensated open-loop transfer function ---
+%% --- 6) Form compensated open-loop transfer function ---
 L_comp = Gc * L;
 
-% --- 7) Safe Bode plot limits ---
+%% --- 7) Safe Bode plot limits ---
 Wmin = max(1e-2, w_g/100);
 Wmax = w_g*100;
 
@@ -167,19 +168,21 @@ grid on;
 legend('Uncompensated', 'Compensated');
 title('Bode Plot: Uncompensated vs Compensated');
 
-% --- 😎 Compute margins before and after ---
+%% --- 😎 Compute margins before and after ---
 [Gm_u, Pm_u, Wcg_u, Wcp_u] = margin(L);
 [Gm_c, Pm_c, Wcg_c, Wcp_c] = margin(L_comp);
 fprintf('\nUncompensated: PM = %.2f° at ωc = %.4f rad/s\n', Pm_u, Wcp_u);
 fprintf('Compensated:   PM = %.2f° at ωc = %.4f rad/s\n', Pm_c, Wcp_c);
 
-% --- 9) Closed-loop check ---
+%% --- 9) Closed-loop check ---
 Tcl = feedback(L_comp, 1);
 figure;
 step(Tcl);
 grid on;
 title('Closed-loop step response with lag compensator');
+stepinfo(Tcl)
 
 z = 1/T;              % zero frequency (rad/s)
 p = z/alpha;          % pole frequency (rad/s)
 fprintf('Zero at ωz = %.3f rad/s, Pole at ωp = %.3f rad/s\n', z, p);
+%}
