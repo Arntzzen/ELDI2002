@@ -83,7 +83,7 @@ settlingValue = y(end);
 %}
 
 
-syms vC iL u R L C V0 G I0_nom a11 a12 a21 a22 b1 b2;
+%syms vC iL u R L C V0 G I0_nom a11 a12 a21 a22 b1 b2;
 
 F1 = -R/L*iL - (1-u)/L*vC + V0/L;
 F2 = -G/C*vC + (1-u)/C*iL - I0_nom/C;
@@ -95,7 +95,7 @@ Jac_BS = [b1
           b2];
 
 
-%{
+
 % Transfer function of our system
 syms IL VC U s;
 X = [IL; VC];
@@ -117,7 +117,7 @@ disp('Transfer function:');
 
 eq_val = s*X == A*X + B*U;
 sol_eq_val = solve(eq_val, [IL, VC]);
-%}
+
 
 
 
@@ -128,8 +128,8 @@ s = tf('s');
 C_m = [1, 0];
 D_m = 0;
 
-sys_ss = ss(A, B, C_m, D_m);
-sys_tf = tf(sys_ss);
+sys_ss = ss(A, B, C_m, D_m)
+sys_tf = tf(sys_ss)
 
 %step(sys_tf);
 
@@ -145,7 +145,7 @@ step(first_order);
 
 
 
-%{
+
 % Closed-Loop
 syms Kp Ki K aa s Wn_cl zeta_cl
 G_hat = K * (1 / (s + aa));
@@ -164,7 +164,7 @@ PI_closed_loop = collect(PI_cl, s);
 disp('PI Closed Loop:')
 pretty(PI_closed_loop)
 
-K = 12.24;
+K = 3687.9;
 aa = 301.3;
 
 Ki_cl_sym = Wn_cl^2 / K
@@ -190,4 +190,3 @@ sys_PI = tf([K*Kp_cl, Ki_cl*K],[1, (aa+K*Kp_cl), K*Ki_cl])
 disp('sys_PI:')
 stepinfo(sys_PI)
 step(sys_PI)
-%}
