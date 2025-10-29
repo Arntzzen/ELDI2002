@@ -2,8 +2,8 @@
 %clc; clear; close all;
 
 % ---- plant + controller base values ----
-K = 12.24;          % given plant gain
-KI = 1230;         % integral gain used to set steady-state error (user value)
+K = 3687.9;          % given plant gain
+KI = 4.085;         % integral gain used to set steady-state error (user value)
 a = 301.3;          % plant pole location
 % Target phase margin you want after compensation:
 PM_target = 60;     % degrees
