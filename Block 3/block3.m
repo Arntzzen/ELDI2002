@@ -83,7 +83,7 @@ settlingValue = y(end);
 %}
 
 
-%syms vC iL u R L C V0 G I0_nom a11 a12 a21 a22 b1 b2;
+syms vC iL u R L C V0 G I0_nom a11 a12 a21 a22 b1 b2;
 
 F1 = -R/L*iL - (1-u)/L*vC + V0/L;
 F2 = -G/C*vC + (1-u)/C*iL - I0_nom/C;
