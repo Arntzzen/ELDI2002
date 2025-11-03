@@ -96,7 +96,7 @@ Jac_BS = [b1
 
 
 
-% Transfer function of our system
+%% Transfer function of our system
 syms IL VC U s;
 X = [IL; VC];
 
@@ -112,8 +112,8 @@ disp('Transfer function:');
 %pretty(IL_col);
 
 
-%sim = vpa(simplify(sol.IL), 2)
-%pretty(sim)
+sim = vpa(simplify(sol.IL), 2)
+pretty(sim)
 
 eq_val = s*X == A*X + B*U;
 sol_eq_val = solve(eq_val, [IL, VC]);
@@ -121,15 +121,18 @@ sol_eq_val = solve(eq_val, [IL, VC]);
 
 
 
-
-% State-space system with transfer function
+%{
+%% State-space system with transfer function
 s = tf('s');
 
 C_m = [1, 0];
 D_m = 0;
 
-sys_ss = ss(A, B, C_m, D_m)
-sys_tf = tf(sys_ss)
+
+sys_ss = ss(A, B, C_m, D_m):
+sys_tf = tf(sys_ss):
+[num, den] = tfdata(sys_tf, 'v'):
+
 
 %step(sys_tf);
 
@@ -141,12 +144,12 @@ alpha = real(pol(1))
 
 first_order = K * (1 / (s + abs(alpha)))
 
-step(first_order);
+%step(first_order);
 
 
 
 
-% Closed-Loop
+%% Closed-Loop
 syms Kp Ki K aa s Wn_cl zeta_cl
 G_hat = K * (1 / (s + aa));
 Gc = Kp*((s+Ki/Kp)/s);
@@ -167,8 +170,8 @@ pretty(PI_closed_loop)
 K = 3687.9;
 aa = 301.3;
 
-Ki_cl_sym = Wn_cl^2 / K
-Kp_cl_sym = (2 * z * Wn_cl - aa) / K
+Ki_cl_sym = Wn_cl^2 / K;
+Kp_cl_sym = (2 * z * Wn_cl - aa) / K;
 s = -Ki_cl_sym / Kp_cl_sym;
 
 sol = solve(abs((-Ki_cl_sym / Kp_cl_sym)) >= 10*z*Wn_cl, Wn_cl, 'ReturnConditions', true)
@@ -178,7 +181,7 @@ vpa(sol.conditions(2,1))
 vpa(sol.conditions(3,1))
 
 
-% Transfer function of the PI-controller
+%% Transfer function of the PI-controller
 %alpha = 301.3;
 wn_cl = 290;
 
@@ -190,3 +193,4 @@ sys_PI = tf([K*Kp_cl, Ki_cl*K],[1, (aa+K*Kp_cl), K*Ki_cl])
 disp('sys_PI:')
 stepinfo(sys_PI)
 step(sys_PI)
+%}
