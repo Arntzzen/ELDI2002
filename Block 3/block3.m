@@ -115,13 +115,35 @@ disp('Transfer function:');
 sim = vpa(simplify(sol.IL), 2)
 pretty(sim)
 
+
+%%%%%%%%%%%%%%% Dette er til Block 5 %%%%%%%%%%%%%%%%%%%%
+limit_sim = limit(sim, s, 0)
+pretty(limit_sim)
+
+a11n = A(1,1);
+a12n = A(1,2);
+a21n = A(2,1);
+a22n = A(2,2);
+b1n = B(1);
+b2n = B(2);
+
+sim_num = subs(limit_sim, {a11, a12, a21, a22, b1, b2}, {a11n, a12n, a21n, a22n, b1n, b2n})
+pretty(sim_num)
+Kpm = 0.0687
+gammam = -3373.9
+fedig = Kpm*gammam*sim_num
+%%%%%%%%%%% Ferdig %%%%%%%%%%%%%%
+
+
+
+
 eq_val = s*X == A*X + B*U;
 sol_eq_val = solve(eq_val, [IL, VC]);
 
 
 
 
-%{
+
 %% State-space system with transfer function
 s = tf('s');
 
@@ -129,9 +151,9 @@ C_m = [1, 0];
 D_m = 0;
 
 
-sys_ss = ss(A, B, C_m, D_m):
-sys_tf = tf(sys_ss):
-[num, den] = tfdata(sys_tf, 'v'):
+sys_ss = ss(A, B, C_m, D_m)
+sys_tf = tf(sys_ss)
+[num, den] = tfdata(sys_tf, 'v');
 
 
 %step(sys_tf);
