@@ -15,7 +15,7 @@ d = 126615937;
 
 % This is our loop tf with PI, but only with the s at origin and not
 % the term  with gamma. We will calculate that later.
-GolPI = co * ((s1 + a) / (s1 * ((s1)^2 + b*s1 + d))*(s1+20))
+GolPI = co * ((s1 + a) / (s1 * ((s1)^2 + b*s1 + d)*(s1+20)))
 
 
 %%%%%%%%% Angle criterion to find gamma %%%%%%%%%%
@@ -23,21 +23,23 @@ GolPI = co * ((s1 + a) / (s1 * ((s1)^2 + b*s1 + d))*(s1+20))
 sd = -499+682.9j;
 
 % calculating numeric values of each term (again, without gamma-term).
-v1_num = sd + a
+v1_num = sd + a;
 v2_num = sd;
 v3_num = sd + (-301.3+11264.4j);
 v4_num = sd + (-301.3-11264.4j);
+v5_num = sd + 20;
 
 % Finding angles in degrees of each term.
-v1_ang = angle(v1_num) * (180/pi);
-v2_ang = angle(v2_num) * (180/pi);
-v3_ang = angle(v3_num) * (180/pi);
-v4_ang = angle(v4_num) * (180/pi);
+v1_ang = angle(v1_num) * (180/pi)
+v2_ang = angle(v2_num) * (180/pi)
+v3_ang = angle(v3_num) * (180/pi)
+v4_ang = angle(v4_num) * (180/pi)
+v5_ang = angle(v5_num) * (180/pi)
 
 % Calculating the sum of each angle and moving over to the right side
 % of the equation and then getting rid of the arctan from the left side.
-anglesum = v1_ang + v2_ang + v3_ang + v4_ang
-rightside = -180 - anglesum + 360
+anglesum = v1_ang - v2_ang - v3_ang - v4_ang - v5_ang
+rightside = -180 - anglesum
 rightside_tan = tan(rightside * (pi/180))
 
 % Solving for gamma.
@@ -50,7 +52,7 @@ gamma = double(solve(eq))
 %%%%%%%%% Magnitude criterion to find Kp and Ki %%%%%%%%%%
 
 % Calculate the magnitude of the loop transfer function
-magnitude = abs(GolPI);
+magnitude = abs(GolPI)
 % Set the desired magnitude for Kp
 rightside = 1;
 Kp = rightside / magnitude
@@ -59,14 +61,17 @@ Ki = gamma * Kp
 
 %%%%%%%%%%%%%%% Plot root locus of Closed Loop PI %%%%%%%%%%%
 
-desired_pole = -499 + 682.9j
+desired_pole = [-499 + 682.9j, -499 - 682.9j]
 s = tf('s');
-Gol = ((Kp*(s+gamma)) / s) * ((s+a) / ((s^2 + b*s + d)*(s+20)))
+Gol = ((Kp*(s+gamma)) / s) * ((s+a) / ((s^2 + b*s + d) * (s+20)))
+
+ang_val = [v1_num, v2_num, v3_num, v4_num, v5_num];
 
 figure;
 rlocus(Gol);
 hold on;
 plot(desired_pole, 'rx', 'MarkerSize', 10, 'LineWidth', 2);
+%   plot(ang_val, 'b*')
 xlabel('Re(s)');
 ylabel('Im(s)');
 title('Root locus with desired poles');
