@@ -129,9 +129,11 @@ b2n = B(2);
 
 sim_num = subs(limit_sim, {a11, a12, a21, a22, b1, b2}, {a11n, a12n, a21n, a22n, b1n, b2n})
 pretty(sim_num)
-Kpm = 0.0687
-gammam = -3373.9
+Kpm = 73.3412
+gammam = 796
 fedig = Kpm*gammam*sim_num
+1 / fedig
+disp(0.0000013996945649972095864943554795475)
 %%%%%%%%%%% Ferdig %%%%%%%%%%%%%%
 
 

@@ -17,7 +17,6 @@ d = 126615937;
 % the term  with gamma. We will calculate that later.
 GolPI = co * ((s1 + a) / (s1 * ((s1)^2 + b*s1 + d)*(s1+20)))
 
-
 %%%%%%%%% Angle criterion to find gamma %%%%%%%%%%
 % Define desired pole sd
 sd = -499+682.9j;
@@ -47,7 +46,7 @@ syms gam
 eq = 682.9 / (-499+gam) == rightside_tan
 gamma = double(solve(eq))
 
-
+abc = 0.0687 * gamma * 12.2379
 
 %%%%%%%%% Magnitude criterion to find Kp and Ki %%%%%%%%%%
 
@@ -60,20 +59,43 @@ Ki = gamma * Kp
 
 
 %%%%%%%%%%%%%%% Plot root locus of Closed Loop PI %%%%%%%%%%%
-
+con = 2
 desired_pole = [-499 + 682.9j, -499 - 682.9j]
 s = tf('s');
-Gol = ((Kp*(s+gamma)) / s) * ((s+a) / ((s^2 + b*s + d) * (s+20)))
+Gol = ((Kp*(s+gamma)) / s) * (co*((s+a) / ((s^2 + b*s + d) * (s+20))))
 
 ang_val = [v1_num, v2_num, v3_num, v4_num, v5_num];
 
-figure;
-rlocus(Gol);
-hold on;
-plot(desired_pole, 'rx', 'MarkerSize', 10, 'LineWidth', 2);
+% figure;
+% rlocus(Gol);
+% hold on;
+% plot(desired_pole, 'rx', 'MarkerSize', 10, 'LineWidth', 2);
 %   plot(ang_val, 'b*')
-xlabel('Re(s)');
-ylabel('Im(s)');
-title('Root locus with desired poles');
-grid on;
-legend('Root Locus', 'Desired poles');
+% xlabel('Re(s)');
+% ylabel('Im(s)');
+% title('Root locus with desired poles');
+% grid on;
+% legend('Root Locus', 'Desired poles');
+
+% syms s
+% L = 1 / (s*alpha)
+% 
+% t = 0:0.01:10; % tidsvektor, juster etter behov
+% [y, t_out] = step(L, t);
+% plot(t_out, y, 'LineWidth', 1.5);
+% grid on;
+% xlabel('Tid (s)');
+% ylabel('Respons');
+% title('Ramprespons for L(s)');
+
+
+
+%%%%%%%%%%%%%%% Lag compensator %%%%%%%%%%%%%%%
+al = (1 / (0.01*Kp*gamma*((co*a)/d))) * 1.3977e-06;
+alpha = 1.7011e-7;
+z = -499 / 50;
+p = alpha * z;
+
+comp = (s+z) / (s+p)
+transf_func = comp * Gol
+% ess = double(limit(L, s, 0))
