@@ -81,7 +81,7 @@ ang_val = [v1_num, v2_num, v3_num, v4_num, v5_num];
 al = (1 / (0.01*Kp*gamma*((co*a)/d)))% * 1.3977e-06
 alpha = 1.7011e-7;
 z = -499 / 50
-p = z * alpha
+p = z / alpha
 
 comp = (s-z) / (s-p)
 trans_func = comp * Gol
