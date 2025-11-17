@@ -4,7 +4,7 @@ PO = 10;
 Ts = 0.002;
 
 zeta = (-log(PO/100)) / (sqrt(pi^2 + (log(PO/100))^2));
-wn = 1 / (zeta * Ts);
+wn = 1 / (zeta * Ts)
 Kv_comp = 1.7011e-7 * 5.8784e8
 % These are values from our second order tf assigned to variables
 s1 = -499 + 682.9j;
