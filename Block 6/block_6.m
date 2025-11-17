@@ -13,7 +13,7 @@ O = [C; C*A]
 Rank_O = rank(O)
 det_O = det(O)
 
- %% Designing full-state feedback controller
+%% Full-state feedback controller using desired zeta and wn
 zeta = 0.591155033798898;
 wn = 845.8018140975397;
 
@@ -32,6 +32,7 @@ pretty(terms(2))
 first_term = collected(2)
 second_term = collected(3)
 
+
 two_zeta_wn = 2 * zeta * wn
 wn_square = wn^2
 
@@ -47,3 +48,19 @@ k = [sol.k1, sol.k2]
 eig(A-B*k)
 double(eig(A-B*k))
 %}
+
+
+Cekte = ctrb(A,B)
+observable = obsv(A,Cekte)
+
+%% LQR-controller
+% Define the Q and R matrices for LQR
+Q = eye(size(A));           % State weighting matrix
+R = 1;                      % Control weighting scalar
+
+
+% Compute the LQR gain matrix
+P = care(A, B, Q, R)
+K = inv(R) * B' * P
+
+ja = -K*u
